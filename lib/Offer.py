@@ -11,6 +11,8 @@ class Offer:
         self.location = offerResponseObject.get('serviceAreaId')
         self.blockRate = float(offerResponseObject.get('rateInfo').get('priceAmount'))
         self.endTime = datetime.fromtimestamp(offerResponseObject.get('endTime'))
+        self.startHour = self.expirationDate.hour-8
+        self.endHour = self.endTime.hour-8
 
     
     def toString(self) -> str:
@@ -22,17 +24,17 @@ class Offer:
         body += 'Block Duration: ' + str(blockDuration) + f'{"hour" if blockDuration == 1 else "hours"}\n'
 
         if not self.expirationDate.minute:
-            body += 'Start time: ' + str(self.expirationDate.hour) + '00\n'
+            body += 'Start time: ' + str(self.startHour) + ':00\n'
         elif self.expirationDate.minute < 10:
-            body += 'Start time: ' + str(self.expirationDate.hour) + '0' + str(self.expirationDate.minute) + '\n'
+            body += 'Start time: ' + str(self.startHour) + ':0' + str(self.expirationDate.minute) + '\n'
         else:
-            body += 'Start time: ' + str(self.expirationDate.hour) + str(self.expirationDate.minute) + '\n'
+            body += 'Start time: ' + str(self.startHour) + ":" + str(self.expirationDate.minute) + '\n'
 
         if not self.endTime.minute:
-            body += 'End time: ' + str(self.endTime.hour) + '00\n'
+            body += 'End time: ' + str(self.endHour) + ':00\n'
         elif self.endTime.minute < 10:
-            body += 'End time: ' + str(self.endTime.hour) + '0' + str(self.endTime.minute) + '\n'
+            body += 'End time: ' + str(self.endHour) + ':0' + str(self.endTime.minute) + '\n'
         else:
-            body += 'End time: ' + str(self.endTime.hour) + str(self.endTime.minute) + '\n'
+            body += 'End time: ' + str(self.endHour) + ":" + str(self.endTime.minute) + '\n'
 
         return body

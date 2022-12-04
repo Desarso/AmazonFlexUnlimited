@@ -57,6 +57,7 @@ class FlexUnlimited:
         config = json.load(configFile)
         self.username = config["username"]
         self.password = config["password"]
+        self.undesiredDates = config["undesiredDates"]
         self.desiredWarehouses = config["desiredWarehouses"] if len(config["desiredWarehouses"]) >= 1 else None  # list of warehouse ids
         self.minBlockRate = config["minBlockRate"]
         self.arrivalBuffer = config["arrivalBuffer"]
@@ -195,11 +196,17 @@ class FlexUnlimited:
           from_=self.twilioFromNumber,
           body=offer.toString())
       Log.info(f"Successfully accepted an offer.")
+      sys.exit()
     else:
       Log.error(f"Unable to accept an offer. Request returned status code {request.status_code}")
 
   def __processOffer(self, offer: Offer):
-    offerStartHour = offer.expirationDate.hour
+    offerStartHour = offer.startHour
+    offerEndHour = offer.endHour
+
+    for date in self.undesiredDates: 
+      if date == str(offer.expirationDate.month) + '/' + str(offer.expirationDate.day):
+        return
 
     if self.minBlockRate:
       if offer.blockRate < self.minBlockRate:
@@ -220,19 +227,24 @@ class FlexUnlimited:
 
     self.__acceptOffer(offer)
 
+
+##I want the bot to accept order on Mondays, Wednesdays, Fridays, Saturdays, Sundays.
+##I only want specific times, and it would be nice if I could sync it with my google account. 
+##I don't know if running it constantly would be the best idea. 
   def run(self):
     Log.info("Starting job search...")
     while self.__retryCount < self.retryLimit:
-      if not self.__retryCount % 50:
+      if not self.__retryCount % 5:
         print(self.__retryCount, 'requests attempted\n\n')
-
       offersResponse = self.__getOffers()
+      time.sleep(2)
       if offersResponse.status_code == 200:
         currentOffers = offersResponse.json().get("offerList")
         currentOffers.sort(key=lambda pay: int(pay['rateInfo']['priceAmount']),
                            reverse=True)
         for offer in currentOffers:
           offerResponseObject = Offer(offerResponseObject=offer)
+          print(offerResponseObject.toString())
           self.__processOffer(offerResponseObject)
         self.__retryCount += 1
       else:
