@@ -72,6 +72,7 @@ class FlexUnlimited:
         self.__requestHeaders = FlexUnlimited.allHeaders.get("FlexCapacityRequest")
         self.__requestHeaders["x-amz-access-token"] = self.__getFlexRequestAuthToken()
         self.serviceAreaIds = self.__getEligibleServiceAreas()
+        self.weekDays = config["blockedDays"]
 
         twilioAcctSid = config["twilioAcctSid"]
         twilioAuthToken = config["twilioAuthToken"]
@@ -207,6 +208,9 @@ class FlexUnlimited:
     for date in self.undesiredDates: 
       if date == str(offer.expirationDate.month) + '/' + str(offer.expirationDate.day):
         return
+    for day in self.weekDays:
+      if day == offer.day:
+        return
 
     if self.minBlockRate:
       if offer.blockRate < self.minBlockRate:
@@ -249,6 +253,12 @@ class FlexUnlimited:
         self.__retryCount += 1
       else:
         Log.error(offersResponse.json())
+        self.twilioClient.messages.create(
+        to=self.twilioToNumber,
+        from_=self.twilioFromNumber,
+        body="An error occurred with your docker flex image, your token expired in only " + str(self.__retryCount) +". Please make sure Amazon is not mad at you.")
+        print("Retry Limit:", self.retryLimit)
+        sys.exit()
         break
     Log.info("Job search cycle ending...")
     Log.info(f"Accepted {len(self.__acceptedOffers)} offers in {time.time() - self.__startTimestamp} seconds")
