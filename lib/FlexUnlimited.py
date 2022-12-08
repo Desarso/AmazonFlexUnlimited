@@ -123,8 +123,11 @@ class FlexUnlimited:
     try:
       response: Response = requests.post(FlexUnlimited.routes.get("GetAuthToken"),
                                headers=FlexUnlimited.allHeaders.get("AmazonApiRequest"), json=payload).json()
+      # print(response)
       return response.get("response").get("success").get("tokens").get("bearer").get("access_token")
+
     except Exception as e:
+      print(e)
       twoStepVerificationChallengeUrl = self.__getTwoStepVerificationChallengeUrl(response)
       print("Unable to authenticate to Amazon Flex.")
       print(f"\nPlease try completing the two step verification challenge at \033[1m{twoStepVerificationChallengeUrl}\033[0m . Then try again.")
@@ -197,7 +200,7 @@ class FlexUnlimited:
           from_=self.twilioFromNumber,
           body=offer.toString())
       Log.info(f"Successfully accepted an offer.")
-      sys.exit()
+      # sys.exit()
     else:
       Log.error(f"Unable to accept an offer. Request returned status code {request.status_code}")
 
@@ -238,10 +241,12 @@ class FlexUnlimited:
   def run(self):
     Log.info("Starting job search...")
     while self.__retryCount < self.retryLimit:
-      if not self.__retryCount % 5:
-        print(self.__retryCount, 'requests attempted\n\n')
+      # if not self.__retryCount % 5:
+      #   print(self.__retryCount, 'requests attempted\n\n')
+      print(self.__retryCount+1, 'requests attempted\n\n')
       offersResponse = self.__getOffers()
-      time.sleep(2)
+      time.sleep(26)
+      # print(offersResponse.status_code)
       if offersResponse.status_code == 200:
         currentOffers = offersResponse.json().get("offerList")
         currentOffers.sort(key=lambda pay: int(pay['rateInfo']['priceAmount']),

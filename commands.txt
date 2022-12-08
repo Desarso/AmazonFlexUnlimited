@@ -1,0 +1,1 @@
+docker build . -t desarso/flexbot && docker push desarso/flexbot && docker run -d desarso/flexbot

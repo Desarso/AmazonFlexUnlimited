@@ -23,32 +23,31 @@ class Offer:
 
     
     def toString(self) -> str:
-        blockDuration = (self.endTime - self.expirationDate).seconds / 3600
-        self.day = str(getDate(self.expirationDate.year, self.expirationDate.month, self.expirationDate.day))
+            blockDuration = (self.endTime - self.expirationDate).seconds / 3600
+            self.day = str(getDate(self.expirationDate.year, self.expirationDate.month, self.expirationDate.day))
+            print("Time difference: ", (self.expirationDate - datetime.now()).seconds / 3600)
 
-        body = 'Location: ' + self.location + '\n'
-        body += 'Date: ' + str(self.expirationDate.month) + '/' + str(self.expirationDate.day) + '\n'
-        body += 'Pay: ' + str(self.blockRate) + '\n'
-        body += 'Block Duration: ' + str(blockDuration) + f'{"hour" if blockDuration == 1 else "hours"}\n'
-        body += "Day of Week: " + self.day + "\n"
-        body += "Offer ID: " + str(self.id) + "\n"
-       
+            body = 'Location: ' + self.location + '\n'
+            body += 'Date: ' + str(self.expirationDate.month) + '/' + str(self.expirationDate.day) + '\n'
+            body += 'Pay: ' + str(self.blockRate) + '\n'
+            body += 'Block Duration: ' + str(blockDuration) + f'{"hour" if blockDuration == 1 else "hours"}\n'
+            body += "Day of Week: " + self.day + "\n"
+            body += "Offer ID: " + str(self.id[len(self.id) -1]) + str(self.id[len(self.id)-2])  + str(self.id[len(self.id)-3])  + str(self.id[len(self.id)-4])  + "\n"
+            if not self.expirationDate.minute:
+                body += 'Start time: ' + (str(self.startHour) if self.startHour < 12 else (str(self.startHour-12)) + ':00 ' + " pm\n" if self.startHour > 12 else " am\n")
+            elif self.expirationDate.minute < 10:
+                body += 'Start time: ' + (str(self.startHour) if self.startHour < 12 else (str(self.startHour-12)) + ':0' + str(self.expirationDate.minute) + " pm\n" if self.startHour > 12 else " am\n")
+            else:
+                body += 'Start time: ' + (str(self.startHour) if self.startHour < 12 else (str(self.startHour-12)) + ":" + str(self.expirationDate.minute) + " pm\n" if self.startHour > 12 else " am\n")
 
-        if not self.expirationDate.minute:
-            body += 'Start time: ' + str(self.startHour) + ':00\n'
-        elif self.expirationDate.minute < 10:
-            body += 'Start time: ' + str(self.startHour) + ':0' + str(self.expirationDate.minute) + '\n'
-        else:
-            body += 'Start time: ' + str(self.startHour) + ":" + str(self.expirationDate.minute) + '\n'
+            if not self.endTime.minute:
+                body += 'End time: ' + (str(self.endHour) if self.endHour < 12 else (str(self.endHour-12))  + ':00' + " pm\n" if self.endHour > 12 else " am\n")
+            elif self.endTime.minute < 10:
+                body += 'End time: ' + (str(self.endHour) if self.endHour < 12 else (str(self.endHour-12)) + ':0' + str(self.endTime.minute) + " pm\n" if self.endHour > 12 else " am\n")
+            else:
+                body += 'End time: ' + (str(self.endHour) if self.endHour < 12 else (str(self.endHour-12)) + ":" + str(self.endTime.minute)  + " pm\n" if self.endHour > 12 else "  am\n")
 
-        if not self.endTime.minute:
-            body += 'End time: ' + str(self.endHour) + ':00\n'
-        elif self.endTime.minute < 10:
-            body += 'End time: ' + str(self.endHour) + ':0' + str(self.endTime.minute) + '\n'
-        else:
-            body += 'End time: ' + str(self.endHour) + ":" + str(self.endTime.minute) + '\n'
-
-        return body
+            return body
 
     # function that turn a date into a weekday
 
